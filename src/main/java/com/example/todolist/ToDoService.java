@@ -17,4 +17,25 @@ public class ToDoService {
     public ToDo saveToDo(ToDo toDo) {
         return repo.save(toDo);
     }
+
+    public ToDo getToDoById(String id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not Found"));
+    }
+
+    public void updateStatus(String id, Status status) {
+        ToDo toDo = getToDoById(id);
+        toDo = toDo.withStatus(status);
+        repo.save(toDo);
+    }
+
+    public void editDescription(String id, String description) {
+        ToDo toDo = getToDoById(id);
+        toDo = toDo.withDescription(description);
+        repo.save(toDo);
+    }
+
+    public void deleteToDoById(String id) {
+        repo.deleteById(id);
+    }
 }
