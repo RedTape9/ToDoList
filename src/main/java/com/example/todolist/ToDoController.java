@@ -1,8 +1,11 @@
 package com.example.todolist;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -13,8 +16,11 @@ public class ToDoController {
     private final ToDoService service;
 
     @PostMapping
-    public ToDo saveToDo(@RequestBody ToDo toDo){
-        return service.saveToDo(toDo);
+    public ResponseEntity<ToDo> saveToDo(@RequestBody ToDo toDo){
+        ToDo createdToDo = service.saveToDo(toDo);
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+                .buildAndExpand(createdToDo.id()).toUri();
+        return ResponseEntity.created(location).body(createdToDo);
     }
 
     @GetMapping
@@ -33,13 +39,17 @@ public class ToDoController {
     }
 
     @PutMapping("/{id}")
-    public void editDescription(@PathVariable String id, @RequestBody ToDo toDo){
+    public ResponseEntity<ToDo> editDescription(@PathVariable String id, @RequestBody ToDo toDo){
         service.editDescription(id, toDo.description());
         service.updateStatus(id, toDo.status());
+        ToDo updatedToDo = service.getToDoById(id);
+        return ResponseEntity.ok(updatedToDo);
     }
 
+
     @DeleteMapping("/{id}")
-    public void deleteToDoById(@PathVariable String id){
+    public ResponseEntity<Void> deleteToDoById(@PathVariable String id){
         service.deleteToDoById(id);
+        return ResponseEntity.noContent().build();
     }
 }
